@@ -73,7 +73,7 @@ const CHARS = [
     c1: '#64b5f6', c2: '#f9ca24', c3: '#e17055',
     eyeColor: '#2d3436',
     stats: { spd: 8, pow: 7, def: 6 },
-    special: 'Head Slam'
+    special: 'Banana Nunchucks'
   },
   {
     id: 'beaver', name: 'Bucky',
@@ -87,7 +87,7 @@ const CHARS = [
     c1: '#a0522d', c2: '#deb887', c3: '#8B0000',
     eyeColor: '#2c3e50',
     stats: { spd: 7, pow: 6, def: 7 },
-    special: 'Rolling Sausage'
+    special: 'Sausage Slingshot'
   },
   {
     id: 'penguin', name: 'Pebble',
@@ -503,9 +503,72 @@ function drawMonkey(state, ft) {
   ctx.quadraticCurveTo(-50, -45 + bob, -55, -70 + bob);
   ctx.stroke();
 
+  // ======= BANANA NUNCHUCKS — special attack =======
+  if (state === 'special') {
+    // Normal body already drawn above; draw nunchucks before head
+    // Right arm swinging nunchucks overhead
+    ctx.fillStyle = c.c1;
+    ctx.beginPath(); ctx.ellipse(16, -62 + bob, 9, 18, 0.5, 0, Math.PI * 2); ctx.fill(); // right arm raised
+    ctx.beginPath(); ctx.ellipse(-14, -48 + bob, 9, 14, 0.4, 0, Math.PI * 2); ctx.fill(); // left arm normal
+
+    // Chain connecting the two bananas (dots)
+    ctx.fillStyle = '#aaa';
+    [[34,-90+bob],[38,-84+bob],[43,-79+bob]].forEach(([cx2,cy2]) => {
+      ctx.beginPath(); ctx.arc(cx2,cy2,2.5,0,Math.PI*2); ctx.fill();
+    });
+
+    // Motion blur arcs — figure-8 swing path
+    ctx.strokeStyle = 'rgba(249,202,36,0.25)'; ctx.lineWidth = 9; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(40, -88 + bob, 28, Math.PI * 0.7, Math.PI * 2.1); ctx.stroke();
+    ctx.strokeStyle = 'rgba(249,202,36,0.15)'; ctx.lineWidth = 14;
+    ctx.beginPath(); ctx.arc(40, -88 + bob, 28, Math.PI * 0.6, Math.PI * 2.2); ctx.stroke();
+
+    // Banana held in hand (at arm tip ~28,-80)
+    ctx.save();
+    ctx.translate(28, -82 + bob); ctx.rotate(0.6);
+    ctx.fillStyle = '#f9ca24';
+    ctx.beginPath(); ctx.ellipse(0, 0, 6, 18, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f0b429';
+    ctx.beginPath(); ctx.ellipse(0, 0, 4, 16, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5c4a00'; ctx.beginPath(); ctx.arc(0, -17, 3, 0, Math.PI*2); ctx.fill(); // tip
+    ctx.fillStyle = '#5c4a00'; ctx.beginPath(); ctx.arc(0, 17, 3, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Swinging banana (at end of chain, ~58,-72 - in mid-swing)
+    ctx.save();
+    ctx.translate(58, -68 + bob); ctx.rotate(-0.9);
+    ctx.fillStyle = '#f9ca24';
+    ctx.beginPath(); ctx.ellipse(0, 0, 6, 18, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f0b429';
+    ctx.beginPath(); ctx.ellipse(0, 0, 4, 16, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5c4a00'; ctx.beginPath(); ctx.arc(0, -17, 3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#5c4a00'; ctx.beginPath(); ctx.arc(0, 17, 3, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+
+    // Normal head (not bonked)
+    ctx.fillStyle = c.c1;
+    ctx.beginPath(); ctx.arc(0, -88 + bob, 37, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-34, -88 + bob, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(34, -88 + bob, 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c2;
+    ctx.beginPath(); ctx.arc(-34, -88 + bob, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(34, -88 + bob, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c2;
+    ctx.beginPath(); ctx.ellipse(2, -83 + bob, 20, 23, 0, 0, Math.PI * 2); ctx.fill();
+    drawEye(-10, -88 + bob, 8.5);
+    drawEye(14, -88 + bob, 8.5);
+    ctx.fillStyle = '#e17055';
+    ctx.beginPath(); ctx.ellipse(2, -77 + bob, 6, 5, 0, 0, Math.PI * 2); ctx.fill();
+    // Determined expression
+    ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(-18,-95+bob); ctx.lineTo(-10,-91+bob); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(18,-95+bob); ctx.lineTo(10,-91+bob); ctx.stroke();
+    return;
+  }
+
   // Head offset: shifts forward for headbutt attacks
-  const hox = (state === 'attack_medium') ? 20 : (state === 'special') ? 32 : 0;
-  const hoy = (state === 'attack_medium') ? 6  : (state === 'special') ? 10 : 0;
+  const hox = (state === 'attack_medium') ? 20 : 0;
+  const hoy = (state === 'attack_medium') ? 6  : 0;
 
   // Neck connector when head is thrust forward
   if (hox > 0) {
@@ -524,7 +587,7 @@ function drawMonkey(state, ft) {
       ctx.beginPath(); ctx.moveTo(x1,y1+bob); ctx.lineTo(x2,y2+bob); ctx.stroke();
     });
     ctx.fillStyle = c.c1; ctx.beginPath(); ctx.ellipse(-14, -48+bob, 9, 14, 0.4, 0, Math.PI*2); ctx.fill();
-  } else if (state === 'attack_medium' || state === 'special') {
+  } else if (state === 'attack_medium') {
     // HEAD BONK — arms flail back, head leads
     ctx.fillStyle = c.c1;
     ctx.beginPath(); ctx.ellipse(-20, -50 + bob, 11, 9, -0.5, 0, Math.PI * 2); ctx.fill();
@@ -675,8 +738,8 @@ function drawDachshund(state, ft) {
   const c = CHARS.find(ch => ch.id === 'dachshund');
 
   const isBite      = state === 'attack_light' || state === 'attack_heavy';
-  const isTorpedo   = state === 'attack_medium';
-  const isCorkscrew = state === 'special';
+  const isEarWhip   = state === 'attack_medium';
+  const isSlingshot = state === 'special';
 
   // ---- Far-side legs: one front + one hind (behind body, dimmed) ----
   // Far-front and near-hind form a diagonal pair → opposite phase to near-front
@@ -719,41 +782,51 @@ function drawDachshund(state, ft) {
     ctx.beginPath(); ctx.ellipse(lx, -7 + bob, 7, 5, 0, 0, Math.PI * 2); ctx.fill();
   });
 
-  if (isTorpedo) {
-    // BODY TORPEDO — whole character tilts forward as missile, draw here and skip normal head
-    ctx.save();
-    ctx.translate(8, -38 + bob); ctx.rotate(-0.28);
-    ctx.fillStyle = c.c1; ctx.beginPath(); ctx.ellipse(0,0,48,20,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.c2; ctx.beginPath(); ctx.ellipse(5,4,30,12,0,0,Math.PI*2); ctx.fill();
-    // Head at nose of torpedo
-    ctx.fillStyle = c.c1; ctx.beginPath(); ctx.ellipse(52,-8,18,14,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.c2; ctx.beginPath(); ctx.ellipse(65,-6,11,8,0.1,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.ellipse(74,-5,4,3,0,0,Math.PI*2); ctx.fill();
-    drawEye(44,-15,5);
-    ctx.restore();
-    // Speed lines
-    ctx.strokeStyle = 'rgba(160,82,45,0.45)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    [[-16,-28+bob],[-20,-38+bob],[-14,-48+bob]].forEach(([ox,oy]) => {
-      ctx.beginPath(); ctx.moveTo(-42+ox,oy); ctx.lineTo(-58+ox,oy); ctx.stroke();
+  if (isSlingshot) {
+    // SAUSAGE SLINGSHOT — Y-fork slingshot fires a sausage projectile
+    // Slingshot Y-fork held at body front
+    ctx.strokeStyle = '#5c3010'; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.moveTo(18, -38 + bob); ctx.lineTo(18, -60 + bob); ctx.stroke(); // handle stem
+    ctx.beginPath(); ctx.moveTo(18, -60 + bob); ctx.lineTo(4,  -78 + bob); ctx.stroke(); // left fork
+    ctx.beginPath(); ctx.moveTo(18, -60 + bob); ctx.lineTo(32, -78 + bob); ctx.stroke(); // right fork
+    // Elastic band — just released, still vibrating near tips
+    ctx.strokeStyle = '#d4a017'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(4, -78 + bob); ctx.quadraticCurveTo(-6, -72 + bob, 2, -64 + bob); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(32, -78 + bob); ctx.quadraticCurveTo(24, -72 + bob, 2, -64 + bob); ctx.stroke();
+    // Dotted arc trail — sausage trajectory
+    ctx.fillStyle = 'rgba(176,90,32,0.55)';
+    [[46,-76+bob,5],[62,-74+bob,5],[78,-65+bob,4]].forEach(([x,y,r]) => {
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
     });
-    return;
-  }
-
-  if (isCorkscrew) {
-    // CORKSCREW — S-curve body with spiral motion rings
-    ctx.strokeStyle = c.c1; ctx.lineWidth = 22; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-44,-28+bob); ctx.bezierCurveTo(-18,-8+bob,18,-65+bob,44,-44+bob); ctx.stroke();
-    ctx.strokeStyle = c.c2; ctx.lineWidth = 12;
-    ctx.beginPath(); ctx.moveTo(-42,-28+bob); ctx.bezierCurveTo(-16,-10+bob,16,-63+bob,42,-44+bob); ctx.stroke();
-    ctx.strokeStyle = 'rgba(160,82,45,0.3)'; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.85;
-    ctx.beginPath(); ctx.arc(52,-44+bob,16,0,Math.PI*2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(60,-42+bob,24,0,Math.PI*2); ctx.stroke();
-    ctx.globalAlpha = 1;
-    // Head at end of corkscrew
-    ctx.fillStyle = c.c1; ctx.beginPath(); ctx.ellipse(44,-44+bob,18,15,0.2,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.c2; ctx.beginPath(); ctx.ellipse(56,-42+bob,10,7,0.1,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.ellipse(64,-41+bob,4,3,0,0,Math.PI*2); ctx.fill();
-    drawEye(37,-50+bob,5);
+    // Sausage projectile mid-flight
+    ctx.fillStyle = '#b05a20';
+    ctx.beginPath(); ctx.ellipse(94, -58 + bob, 18, 8, -0.25, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c2;
+    ctx.beginPath(); ctx.ellipse(94, -58 + bob, 12, 5, -0.25, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#7a2800';
+    ctx.beginPath(); ctx.ellipse(79, -62 + bob, 5, 4, -0.25, 0, Math.PI * 2); ctx.fill(); // back end cap
+    ctx.beginPath(); ctx.ellipse(109, -54 + bob, 5, 4, -0.25, 0, Math.PI * 2); ctx.fill(); // front end cap
+    // Speed lines behind sausage
+    ctx.strokeStyle = 'rgba(176,90,32,0.5)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    [[74,-54+bob,64,-51+bob],[72,-59+bob,62,-58+bob],[74,-66+bob,64,-65+bob]].forEach(([x1,y1,x2,y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    });
+    // Normal head
+    ctx.fillStyle = c.c1;
+    ctx.beginPath(); ctx.ellipse(38, -55 + bob, 22, 18, 0.15, 0, Math.PI * 2); ctx.fill();
+    // Normal floppy ear
+    ctx.fillStyle = '#8b4513';
+    ctx.beginPath();
+    ctx.moveTo(22, -66 + bob); ctx.bezierCurveTo(12,-70+bob,8,-56+bob,16,-40+bob);
+    ctx.bezierCurveTo(20,-33+bob,26,-36+bob,24,-52+bob);
+    ctx.closePath(); ctx.fill();
+    // Normal snout + excited expression
+    ctx.fillStyle = c.c2; ctx.beginPath(); ctx.ellipse(54,-53+bob,13,9,0.1,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.ellipse(65,-52+bob,5,4,0,0,Math.PI*2); ctx.fill();
+    drawEye(32, -59 + bob, 6);
+    // Collar
+    ctx.fillStyle = c.c3; roundRect(27, -50 + bob, 14, 7, 3); ctx.fill();
+    ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.arc(36, -43 + bob, 4, 0, Math.PI * 2); ctx.fill();
     return;
   }
 
@@ -761,13 +834,41 @@ function drawDachshund(state, ft) {
   ctx.fillStyle = c.c1;
   ctx.beginPath(); ctx.ellipse(38, -55 + bob, 22, 18, 0.15, 0, Math.PI * 2); ctx.fill();
 
-  // Long floppy ear
-  ctx.fillStyle = '#8b4513';
-  ctx.beginPath();
-  ctx.moveTo(22, -66 + bob);
-  ctx.bezierCurveTo(12, -70 + bob, 8, -56 + bob, 16, -40 + bob);
-  ctx.bezierCurveTo(20, -33 + bob, 26, -36 + bob, 24, -52 + bob);
-  ctx.closePath(); ctx.fill();
+  if (isEarWhip) {
+    // EAR WHIP — ear flung forward with swoosh trail and whip-crack sparkles
+    // Swoosh trail arcs
+    ctx.strokeStyle = 'rgba(139,69,19,0.35)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(22, -66 + bob);
+    ctx.bezierCurveTo(30, -82 + bob, 62, -80 + bob, 80, -63 + bob);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(139,69,19,0.18)'; ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(22, -66 + bob);
+    ctx.bezierCurveTo(34, -86 + bob, 68, -84 + bob, 86, -61 + bob);
+    ctx.stroke();
+    // Whipped ear shape — flung forward, tip curled around x=86
+    ctx.fillStyle = '#8b4513';
+    ctx.beginPath();
+    ctx.moveTo(22, -66 + bob);
+    ctx.bezierCurveTo(46, -84 + bob, 74, -76 + bob, 86, -55 + bob);
+    ctx.bezierCurveTo(84, -47 + bob, 76, -50 + bob, 78, -60 + bob);
+    ctx.bezierCurveTo(66, -72 + bob, 42, -78 + bob, 22, -62 + bob);
+    ctx.closePath(); ctx.fill();
+    // Whip-crack sparkles at ear tip
+    ctx.strokeStyle = '#f4c94e'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+    [[86,-55+bob, 95,-50+bob],[86,-55+bob, 95,-57+bob],[86,-55+bob, 92,-64+bob],[86,-55+bob, 80,-45+bob]].forEach(([x1,y1,x2,y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    });
+  } else {
+    // Normal long floppy ear
+    ctx.fillStyle = '#8b4513';
+    ctx.beginPath();
+    ctx.moveTo(22, -66 + bob);
+    ctx.bezierCurveTo(12, -70 + bob, 8, -56 + bob, 16, -40 + bob);
+    ctx.bezierCurveTo(20, -33 + bob, 26, -36 + bob, 24, -52 + bob);
+    ctx.closePath(); ctx.fill();
+  }
 
   if (isBite) {
     // BITE — open jaw with upper/lower, teeth, tongue, angry brow
@@ -802,88 +903,147 @@ function drawPenguin(state, ft) {
   const bob  = (state === 'idle' || state === 'walk') ? Math.sin(ft * 0.09) * 3 : 0;
   const walk = state === 'walk' ? Math.sin(ft * 0.16) : 0;
 
-  const isFlipperSlap  = state === 'attack_light';
-  const isBellyBounce  = state === 'attack_medium';
-  const isBellySlide   = state === 'special';
+  const isFlipperSlap     = state === 'attack_light';   // Flipper Slap  — quick right-flipper swipe
+  const isBellyFlop       = state === 'attack_medium';  // Belly Flop    — tips forward, slams belly
+  const isSnowballBarrage = state === 'special';        // Snowball Barrage — throws 3 snowballs
 
-  // ======= BELLY SLIDE — entire penguin tips forward horizontal and rockets across =======
-  if (isBellySlide) {
+  // ======= BELLY FLOP — steep forward tip, belly slams into opponent =======
+  if (isBellyFlop) {
+    // Impact rings and starburst at landing zone (world space, before rotation)
+    ctx.strokeStyle = 'rgba(168,224,255,0.55)'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.ellipse(42, -6, 34, 10, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(168,224,255,0.28)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(42, -6, 54, 16, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = 'rgba(200,235,255,0.65)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    [[42,-20,42,0],[28,-15,30,4],[56,-15,54,4],[20,-8,22,8],[62,-8,60,8]].forEach(([x1,y1,x2,y2]) => {
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    });
+
     ctx.save();
-    ctx.translate(10, -28);    // shift forward and down so belly sits near ground
-    ctx.rotate(-0.48);         // tip forward ~27° onto belly
+    ctx.translate(55, -18);
+    ctx.rotate(-1.25);   // ~72° forward — nearly face-down
 
-    // Ice trail behind the slide
-    ctx.strokeStyle = 'rgba(168,224,255,0.55)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
-    [[-50,-8,18],[-56,-18,14],[-52,2,12],[-60,-28,9],[-58,10,8]].forEach(([x,y,len]) => {
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len, y); ctx.stroke();
-    });
-    ctx.strokeStyle = 'rgba(255,255,255,0.40)'; ctx.lineWidth = 2;
-    [[-48,-13,10],[-54,6,8],[-62,-22,7]].forEach(([x,y,len]) => {
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - len, y); ctx.stroke();
-    });
-
-    // Body (now horizontal)
+    // Body
     ctx.fillStyle = c.c1;
     ctx.beginPath(); ctx.ellipse(0, -50, 30, 40, 0, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(-20, -70, 14, 18, -0.15, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.ellipse( 20, -70, 14, 18,  0.15, 0, Math.PI * 2); ctx.fill();
-
-    // Belly patch (now the leading surface)
     ctx.fillStyle = c.c2;
     ctx.beginPath(); ctx.ellipse(0, -46, 18, 28, 0, 0, Math.PI * 2); ctx.fill();
-
-    // Sheen
     const sg = ctx.createRadialGradient(-8, -72, 3, 0, -50, 36);
     sg.addColorStop(0, 'rgba(255,255,255,0.22)'); sg.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = sg;
     ctx.beginPath(); ctx.ellipse(0, -50, 34, 44, 0, 0, Math.PI * 2); ctx.fill();
 
-    // Flippers tucked tight against body
+    // Flippers splayed wide from impact
     ctx.fillStyle = c.c1;
-    ctx.save(); ctx.translate(-30, -60); ctx.rotate(0.5);
-    ctx.beginPath(); ctx.ellipse(0, 0, 8, 18, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-    ctx.save(); ctx.translate( 30, -60); ctx.rotate(-0.5);
-    ctx.beginPath(); ctx.ellipse(0, 0, 8, 18, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.translate(-28, -56); ctx.rotate(1.3);
+    ctx.beginPath(); ctx.ellipse(0, 0, 9, 21, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.translate( 28, -56); ctx.rotate(-1.3);
+    ctx.beginPath(); ctx.ellipse(0, 0, 9, 21, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
 
-    // Feet trailing behind
+    // Feet trailing upward behind
     ctx.fillStyle = c.c3;
     ctx.beginPath(); ctx.ellipse(-10, -8, 12, 6, 0, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.ellipse( 10, -8, 12, 6, 0, 0, Math.PI * 2); ctx.fill();
 
-    // Head
+    // Head with surprised wide eyes
     ctx.fillStyle = c.c1;
     ctx.beginPath(); ctx.arc(0, -97, 27, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = c.c2;
     ctx.beginPath(); ctx.ellipse(0, -95, 20, 22, 0, 0, Math.PI * 2); ctx.fill();
-
-    // Beak
     ctx.fillStyle = c.c3;
     ctx.beginPath(); ctx.moveTo(0,-83); ctx.lineTo(-10,-94); ctx.lineTo(10,-94); ctx.closePath(); ctx.fill();
-
-    // Eyes (squinting with focus)
     ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.arc(-8, -107, 8, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc( 8, -107, 8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-8, -107, 9.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 8, -107, 9.5, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = c.c1;
-    ctx.beginPath(); ctx.arc(-8, -107, 5.5, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc( 8, -107, 5.5, 0, Math.PI * 2); ctx.fill();
-    // Squint lines above eyes
-    ctx.strokeStyle = c.c1; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-14,-114); ctx.lineTo(-3,-112); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo( 14,-114); ctx.lineTo( 3,-112); ctx.stroke();
+    ctx.beginPath(); ctx.arc(-8, -107, 6.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 8, -107, 6.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath(); ctx.arc(-5.5, -110, 2.4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(10.5, -110, 2.4, 0, Math.PI * 2); ctx.fill();
 
     ctx.restore();
     return;
   }
 
-  // ======= BELLY BOUNCE — squish down on impact, arms flung wide =======
-  if (isBellyBounce) {
-    // Impact rings at ground level
-    ctx.strokeStyle = 'rgba(168,224,255,0.45)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.ellipse(0, -4, 28, 8, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = 'rgba(168,224,255,0.25)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(0, -4, 44, 13, 0, 0, Math.PI * 2); ctx.stroke();
+  // ======= SNOWBALL BARRAGE — throwing stance, three snowballs arcing forward =======
+  if (isSnowballBarrage) {
+    // Feet (stationary for throw)
+    ctx.fillStyle = c.c3;
+    ctx.beginPath(); ctx.ellipse(-13, 0, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 13, 0, 13, 6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#b85200'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    [-18,-13,-8].forEach(tx => { ctx.beginPath(); ctx.moveTo(tx,-3); ctx.lineTo(tx,3); ctx.stroke(); });
+    [ 8, 13, 18].forEach(tx => { ctx.beginPath(); ctx.moveTo(tx,-3); ctx.lineTo(tx,3); ctx.stroke(); });
+
+    // Body
+    ctx.fillStyle = c.c1;
+    ctx.beginPath(); ctx.ellipse(0, -50, 30, 40, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-20, -70, 14, 18, -0.15, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 20, -70, 14, 18,  0.15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c2;
+    ctx.beginPath(); ctx.ellipse(0, -46, 18, 28, 0, 0, Math.PI * 2); ctx.fill();
+    const sbg = ctx.createRadialGradient(-8, -72, 3, 0, -50, 36);
+    sbg.addColorStop(0, 'rgba(255,255,255,0.20)'); sbg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = sbg;
+    ctx.beginPath(); ctx.ellipse(0, -50, 34, 44, 0, 0, Math.PI * 2); ctx.fill();
+
+    // Left flipper pulled back in windup
+    ctx.fillStyle = c.c1;
+    ctx.save(); ctx.translate(-33, -62); ctx.rotate(-1.35);
+    ctx.beginPath(); ctx.ellipse(0, 0, 9, 21, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // Right flipper extended forward in throw
+    ctx.save(); ctx.translate(33, -62); ctx.rotate(0.9);
+    ctx.beginPath(); ctx.ellipse(0, 0, 9, 21, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+
+    // Snowball arc trails
+    const balls = [{ x:58, y:-56, r:10 }, { x:96, y:-68, r:9 }, { x:128, y:-46, r:8 }];
+    ctx.lineCap = 'round';
+    balls.forEach((b, i) => {
+      ctx.strokeStyle = `rgba(168,224,255,${0.58 - i*0.10})`; ctx.lineWidth = 4 - i * 0.6;
+      ctx.beginPath(); ctx.arc(b.x - 24, b.y + 16, 28, -1.85, -1.05); ctx.stroke();
+      ctx.strokeStyle = `rgba(220,242,255,${0.35 - i*0.06})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(b.x - 18, b.y + 11, 20, -1.85, -1.05); ctx.stroke();
+    });
+    // Snowballs
+    balls.forEach(b => {
+      ctx.fillStyle = 'rgba(100,160,220,0.22)';
+      ctx.beginPath(); ctx.arc(b.x + 2, b.y + 2, b.r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e8f4ff';
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      ctx.beginPath(); ctx.arc(b.x - b.r*0.3, b.y - b.r*0.3, b.r*0.38, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // Head — leaning slightly into the throw
+    ctx.fillStyle = c.c1;
+    ctx.beginPath(); ctx.arc(3, -97, 27, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c2;
+    ctx.beginPath(); ctx.ellipse(3, -95, 20, 22, 0, 0, Math.PI * 2); ctx.fill();
+    const shg = ctx.createRadialGradient(-5, -116, 2, 3, -97, 28);
+    shg.addColorStop(0, 'rgba(255,255,255,0.25)'); shg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = shg; ctx.beginPath(); ctx.arc(3, -97, 29, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c3;
+    ctx.beginPath(); ctx.moveTo(3,-83); ctx.lineTo(-7,-94); ctx.lineTo(13,-94); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#b85200'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(3,-94); ctx.lineTo(3,-83); ctx.stroke();
+    // Eyes — one wide-open, one slight squint on the throw side
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(-6, -107, 8,   0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(12, -107, 6.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = c.c1;
+    ctx.beginPath(); ctx.arc(-6, -107, 5.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(12, -107, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.beginPath(); ctx.arc(-3.5, -109.5, 2.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(14.5, -109.5, 1.8, 0, Math.PI * 2); ctx.fill();
+
+    return;
   }
+
+  // ======= NORMAL / FLIPPER SLAP =======
 
   // --- Two orange webbed feet ---
   ctx.fillStyle = c.c3;
@@ -893,19 +1053,13 @@ function drawPenguin(state, ft) {
   [-18,-13,-8].forEach(tx => { ctx.beginPath(); ctx.moveTo(tx+walk*4,-3+bob); ctx.lineTo(tx+walk*4,3+bob); ctx.stroke(); });
   [ 8, 13, 18].forEach(tx => { ctx.beginPath(); ctx.moveTo(tx-walk*4,-3+bob); ctx.lineTo(tx-walk*4,3+bob); ctx.stroke(); });
 
-  // --- Body — squish on belly bounce (compress height, spread width) ---
-  const bScaleX = isBellyBounce ? 1.18 : 1;
-  const bScaleY = isBellyBounce ? 0.82 : 1;
+  // --- Body ---
   ctx.fillStyle = c.c1;
-  ctx.beginPath(); ctx.ellipse(0, -50 + bob, 30 * bScaleX, 40 * bScaleY, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -50 + bob, 30, 40, 0, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(-20, -70 + bob, 14, 18, -0.15, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.ellipse( 20, -70 + bob, 14, 18,  0.15, 0, Math.PI * 2); ctx.fill();
-
-  // --- White belly patch ---
   ctx.fillStyle = c.c2;
-  ctx.beginPath(); ctx.ellipse(0, -46 + bob, 18 * bScaleX, 28 * bScaleY, 0, 0, Math.PI * 2); ctx.fill();
-
-  // --- Plush sheen on body ---
+  ctx.beginPath(); ctx.ellipse(0, -46 + bob, 18, 28, 0, 0, Math.PI * 2); ctx.fill();
   const bg = ctx.createRadialGradient(-8, -72 + bob, 3, 0, -50 + bob, 36);
   bg.addColorStop(0, 'rgba(255,255,255,0.20)'); bg.addColorStop(0.6, 'rgba(255,255,255,0.05)'); bg.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = bg;
@@ -915,27 +1069,18 @@ function drawPenguin(state, ft) {
   ctx.fillStyle = c.c1;
   ctx.save();
   ctx.translate(-33, -58 + bob);
-  // Bounce: flung wide; Flipper slap: left pulls back; idle: gentle sway
-  if (isBellyBounce)     ctx.rotate(-1.1);
-  else if (isFlipperSlap) ctx.rotate(-0.8);
-  else                   ctx.rotate(-0.18 - walk * 0.20);
+  ctx.rotate(isFlipperSlap ? -0.8 : -0.18 - walk * 0.20);
   ctx.beginPath(); ctx.ellipse(0, 0, 9, 21, 0, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
   ctx.save();
   ctx.translate(33, -58 + bob);
-  if (isBellyBounce) {
-    ctx.rotate(1.1);          // flung wide on bounce
-  } else if (isFlipperSlap) {
-    ctx.translate(18, -6);    // right flipper lunges outward
-    ctx.rotate(-1.3);         // snaps to nearly horizontal
-  } else {
-    ctx.rotate(0.18 + walk * 0.20);
-  }
+  if (isFlipperSlap) { ctx.translate(18, -6); ctx.rotate(-1.3); }
+  else               { ctx.rotate(0.18 + walk * 0.20); }
   ctx.beginPath(); ctx.ellipse(0, 0, 9, 21, 0, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
 
-  // --- Flipper slap whoosh arc ---
+  // --- Flipper slap whoosh ---
   if (isFlipperSlap) {
     ctx.strokeStyle = 'rgba(168,224,255,0.65)'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.arc(36, -64 + bob, 32, -2.0, -0.6); ctx.stroke();
@@ -945,14 +1090,11 @@ function drawPenguin(state, ft) {
     });
   }
 
-  // --- Head (squish on belly bounce) ---
-  const hScaleY = isBellyBounce ? 0.88 : 1;
+  // --- Head ---
   ctx.fillStyle = c.c1;
-  ctx.beginPath(); ctx.ellipse(0, -97 + bob, 27, 27 * hScaleY, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, -97 + bob, 27, 27, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = c.c2;
-  ctx.beginPath(); ctx.ellipse(0, -95 + bob, 20, 22 * hScaleY, 0, 0, Math.PI * 2); ctx.fill();
-
-  // Plush sheen on head
+  ctx.beginPath(); ctx.ellipse(0, -95 + bob, 20, 22, 0, 0, Math.PI * 2); ctx.fill();
   const hg = ctx.createRadialGradient(-8, -116 + bob, 2, 0, -97 + bob, 28);
   hg.addColorStop(0, 'rgba(255,255,255,0.25)'); hg.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = hg;
@@ -968,7 +1110,7 @@ function drawPenguin(state, ft) {
   ctx.strokeStyle = '#b85200'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(0, -94 + bob); ctx.lineTo(0, -83 + bob); ctx.stroke();
 
-  // --- Eyes (shared helper) ---
+  // --- Eyes ---
   const eye = (ex, ey) => {
     ctx.fillStyle = '#ffffff';
     ctx.beginPath(); ctx.arc(ex, ey + bob, 8, 0, Math.PI * 2); ctx.fill();
@@ -1569,9 +1711,10 @@ class Fighter {
         spawnParticles(this.x, this.y - 70, '#ff6090', 14, 'star');
         spawnParticles(this.x, this.y - 50, '#ffb8d0', 8, 'hit');
       } else if (this.char.id === 'penguin') {
-        // Belly Slide: icy blue + white snow burst
-        spawnParticles(this.x, this.y - 20, '#a8e0ff', 16, 'star');
-        spawnParticles(this.x, this.y - 10, '#ffffff', 10, 'hit');
+        // Snowball Barrage: icy blue stars + white snow burst at impact zone
+        spawnParticles(this.x + this.facing * 70, this.y - 55, '#a8e0ff', 12, 'star');
+        spawnParticles(this.x + this.facing * 90, this.y - 65, '#ffffff', 8, 'hit');
+        spawnParticles(this.x + this.facing * 110, this.y - 45, '#d0f0ff', 6, 'star');
       } else if (this.char.id === 'beaver') {
         // Timber!: wood chips + bark splinters burst
         spawnParticles(this.x + this.facing * 60, this.y - 44, '#8b5a2b', 14, 'hit');
@@ -1717,7 +1860,7 @@ class Fighter {
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.beginPath(); ctx.ellipse(this.x, this.y + 2, 30, 7, 0, 0, Math.PI * 2); ctx.fill();
 
-    drawChar(this.char.id, this.x, this.y, this.facing, this.state, this.ft, 1, this.hitFlash > 0);
+    drawChar(this.char.id, this.x, this.y, this.facing, this.state, this.ft, this.char.id === 'turtle' ? 1.15 : 1, this.hitFlash > 0);
 
     // Block shield effect
     if (this.state === 'block') {
@@ -2565,7 +2708,7 @@ function drawCharSelect(chars, hovered, pickedChar, phase) {
   ctx.fillStyle = '#fff'; ctx.font = 'bold 16px Arial';
   ctx.fillText(phase === 'player' ? '— SELECT YOUR FIGHTER —' : '— SELECT YOUR OPPONENT —', W / 2, 85);
 
-  const cols = 4, cW = 200, cH = 160;
+  const cols = 4, cW = 200, cH = 175;
   const gx = W / 2 - (cols * cW + (cols - 1) * 8) / 2;
   const gy = 100;
 
@@ -2590,9 +2733,9 @@ function drawCharSelect(chars, hovered, pickedChar, phase) {
     // Clip to card
     roundRect(cx - cW/2 + 2, cy - cH/2 + 2, cW - 4, cH - 4, 10);
     ctx.clip();
-    ctx.translate(cx, cy + 14);
+    ctx.translate(cx, cy + 6);
     ctx.scale(0.68, 0.68);
-    drawChar(ch.id, 0, 0, 1, 'idle', Date.now() * 0.04 + i * 40, 1, false);
+    drawChar(ch.id, 0, 0, 1, 'idle', Date.now() * 0.04 + i * 40, ch.id === 'turtle' ? 1.15 : 1, false);
     ctx.restore();
 
     if (isTaken) {
@@ -2767,14 +2910,14 @@ function drawVSScreen(p1char, p2char, t, bgChoice) {
   ctx.save();
   ctx.translate(195, GROUND + 30);
   ctx.scale(2.1, 2.1);
-  drawChar(p1char.id, 0, 0, 1, 'idle', t * 0.04, 1, false);
+  drawChar(p1char.id, 0, 0, 1, 'idle', t * 0.04, p1char.id === 'turtle' ? 1.15 : 1, false);
   ctx.restore();
 
   // Right character (opponent) — faces left (mirrored)
   ctx.save();
   ctx.translate(705, GROUND + 30);
   ctx.scale(2.1, 2.1);
-  drawChar(p2char.id, 0, 0, -1, 'idle', t * 0.04, 1, false);
+  drawChar(p2char.id, 0, 0, -1, 'idle', t * 0.04, p2char.id === 'turtle' ? 1.15 : 1, false);
   ctx.restore();
 
   // Player name plate (left)
